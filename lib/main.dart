@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_samsungpay/provider/position_provider.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(ProviderScope(child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -15,52 +18,66 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Samsung Pay'),
+      home: MyHomePage(title: 'Samsung Pay'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+class MyHomePage extends HookConsumerWidget {
+  MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
+  final pageController = PageController(initialPage: 0);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(currentPositionProvider.state).state = pageController.page!;
+        pageController.addListener(() {
+          ref.read(currentPositionProvider.state).state = pageController.page!;
+        });
+      });
+
+      return null;
+    }, const []);
+
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(title),
+        ),
+        body: Stack(
+          children: [
+            PageView.builder(
+                controller: pageController,
+                scrollDirection: Axis.horizontal,
+                itemCount: 2,
+                itemBuilder: ((context, index) => Container())),
+            CardWidget(0),
+          ],
+        ));
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class CardWidget extends HookConsumerWidget {
+  final int cardIndex;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  CardWidget(this.cardIndex, {Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentPosition = ref.watch(currentPositionProvider);
+
+    final dx =
+        (MediaQuery.of(context).size.width / 2) - 150 - (currentPosition * 450);
+    final dy = (MediaQuery.of(context).size.height / 2) - 200;
+
+    return Positioned(
+      top: dy,
+      left: dx,
+      child: Container(
+        width: 300,
+        height: 200,
+        color: Colors.red,
       ),
     );
   }
