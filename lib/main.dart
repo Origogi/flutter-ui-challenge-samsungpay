@@ -50,11 +50,15 @@ class MyHomePage extends HookConsumerWidget {
           children: [
             CardWidget(0, Colors.red),
             CardWidget(1, Colors.blue),
+            CardWidget(2, Colors.amber),
+            CardWidget(3, Colors.black),
+            CardWidget(4, Colors.green),
+
 
             PageView.builder(
                 controller: controller,
                 scrollDirection: Axis.horizontal,
-                itemCount: 3,
+                itemCount: 5,
                 itemBuilder: ((context, index) => Container())),
           ],
         ));
