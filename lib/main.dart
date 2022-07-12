@@ -26,16 +26,18 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends HookConsumerWidget {
   MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
-  final pageController = PageController(initialPage: 0);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
+    final controller = usePageController();
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(currentPositionProvider.state).state = pageController.page!;
-        pageController.addListener(() {
-          ref.read(currentPositionProvider.state).state = pageController.page!;
-        });
+        ref.read(currentPositionProvider.state).state = controller.page!;
+      });
+
+      controller.addListener(() {
+        ref.read(currentPositionProvider.state).state = controller.page!;
       });
 
       return null;
@@ -47,12 +49,12 @@ class MyHomePage extends HookConsumerWidget {
         ),
         body: Stack(
           children: [
+            CardWidget(0),
             PageView.builder(
-                controller: pageController,
+                controller: controller,
                 scrollDirection: Axis.horizontal,
                 itemCount: 2,
                 itemBuilder: ((context, index) => Container())),
-            CardWidget(0),
           ],
         ));
   }
