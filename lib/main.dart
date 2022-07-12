@@ -54,7 +54,6 @@ class MyHomePage extends HookConsumerWidget {
             CardWidget(3, Colors.black),
             CardWidget(4, Colors.green),
 
-
             PageView.builder(
                 controller: controller,
                 scrollDirection: Axis.horizontal,
@@ -81,9 +80,11 @@ class CardWidget extends HookConsumerWidget {
     final diff = cardIndex - currentPosition;
 
     if (diff >= -1.0 && diff < 0) {
-      dx += (diff * 300);
+      dx += (diff * 320);
     } else if (diff < - 1.0) {
-      dx -= 300.0;
+      dx -= 320.0;
+    } else {
+      dy -= 10 * diff;
     }
 
     return Positioned(
