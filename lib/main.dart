@@ -48,12 +48,11 @@ class MyHomePage extends HookConsumerWidget {
         ),
         body: Stack(
           children: [
-            CardWidget(0, Colors.red),
-            CardWidget(1, Colors.blue),
+            CardWidget(4, Colors.red),
+            CardWidget(3, Colors.blue),
             CardWidget(2, Colors.amber),
-            CardWidget(3, Colors.black),
-            CardWidget(4, Colors.green),
-
+            CardWidget(1, Colors.black),
+            CardWidget(0, Colors.green),
             PageView.builder(
                 controller: controller,
                 scrollDirection: Axis.horizontal,
@@ -64,9 +63,14 @@ class MyHomePage extends HookConsumerWidget {
   }
 }
 
+const maxCardHeight = 200.0;
+const maxCardWidth = 300.0;
+
 class CardWidget extends HookConsumerWidget {
   final int cardIndex;
   final Color cardColor;
+
+
 
   CardWidget(this.cardIndex, this.cardColor, {Key? key}) : super(key: key);
 
@@ -74,15 +78,24 @@ class CardWidget extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentPosition = ref.watch(currentPositionProvider);
 
-    double dx = (MediaQuery.of(context).size.width / 2) - 150;
-    double dy = (MediaQuery.of(context).size.height / 2) - 200;
+    double dx = (MediaQuery.of(context).size.width / 2) - maxCardWidth / 2;
+    double dy = (MediaQuery.of(context).size.height / 2) - maxCardHeight;
+    double cardWidth = maxCardWidth;
+    double cardHeight = maxCardHeight;
 
     final diff = cardIndex - currentPosition;
 
     if (diff >= -1.0 && diff < 0) {
-      dx += (diff * 320);
-    } else if (diff < - 1.0) {
-      dx -= 320.0;
+      dx += (diff * 280);
+      cardWidth += diff * 40;
+      cardHeight += diff * 40;
+      dy -= diff * 20;
+
+    } else if (diff < -1.0) {
+      dx -= 280.0;
+      cardWidth -= 40;
+      cardHeight -= 40;
+      dy += 20;
     } else {
       dy -= 10 * diff;
     }
@@ -91,9 +104,9 @@ class CardWidget extends HookConsumerWidget {
       top: dy,
       left: dx,
       child: Container(
-        width: 300,
-        height: 200,
-        color: cardColor.withOpacity(0.2),
+        width: cardWidth,
+        height: cardHeight,
+        color: cardColor,
       ),
     );
   }
