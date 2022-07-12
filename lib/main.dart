@@ -29,7 +29,6 @@ class MyHomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final controller = usePageController();
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -49,11 +48,13 @@ class MyHomePage extends HookConsumerWidget {
         ),
         body: Stack(
           children: [
-            CardWidget(0),
+            CardWidget(0, Colors.red),
+            CardWidget(1, Colors.blue),
+
             PageView.builder(
                 controller: controller,
                 scrollDirection: Axis.horizontal,
-                itemCount: 2,
+                itemCount: 3,
                 itemBuilder: ((context, index) => Container())),
           ],
         ));
@@ -62,16 +63,24 @@ class MyHomePage extends HookConsumerWidget {
 
 class CardWidget extends HookConsumerWidget {
   final int cardIndex;
+  final Color cardColor;
 
-  CardWidget(this.cardIndex, {Key? key}) : super(key: key);
+  CardWidget(this.cardIndex, this.cardColor, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentPosition = ref.watch(currentPositionProvider);
 
-    final dx =
-        (MediaQuery.of(context).size.width / 2) - 150 - (currentPosition * 450);
-    final dy = (MediaQuery.of(context).size.height / 2) - 200;
+    double dx = (MediaQuery.of(context).size.width / 2) - 150;
+    double dy = (MediaQuery.of(context).size.height / 2) - 200;
+
+    final diff = cardIndex - currentPosition;
+
+    if (diff >= -1.0 && diff < 0) {
+      dx += (diff * 300);
+    } else if (diff < - 1.0) {
+      dx -= 300.0;
+    }
 
     return Positioned(
       top: dy,
@@ -79,7 +88,7 @@ class CardWidget extends HookConsumerWidget {
       child: Container(
         width: 300,
         height: 200,
-        color: Colors.red,
+        color: cardColor.withOpacity(0.2),
       ),
     );
   }
